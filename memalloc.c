@@ -66,3 +66,54 @@ header_t* get_free_block(size_t size) {
     }
     return NULL;
 }
+
+void free(void* block) {
+    header_t* header, *tmp;
+    void* program_break;
+
+    if (block == NULL) return; // Memory is already unallocated
+    pthread_mutex_lock(&global_malloc_lock);
+
+    // Move back one header-sized unit to access the block's metadata
+    header = (header_t*)block - 1;
+
+    // If the block is already free no need to continue
+    if (header->s.is_free) {
+        pthread_mutex_unlock(&global_malloc_lock);
+        return;
+    }
+
+    program_break = sbrk(0);
+
+    /*
+        If the target block is at the end / top of the heap, we release the
+        memory back to the operating system
+    */
+    if ((char*)block + header->s.size == program_break) {
+        // If target block is the only element in the list
+        // set head and tail to NULL
+        if (head == tail) {
+            head = tail = NULL;
+        } else {
+            // If there are other blocks, set tail to the block previous to the target block
+            tmp = head;
+            while (tmp != NULL) {
+                if (tmp->s.next == tail) {
+                    tmp->s.next = NULL;
+                    tail = tmp;
+                    break; // Stop traversing once we updte the tail
+                }
+                tmp = tmp->s.next;
+            }
+        }
+
+        // Shrink the heap by the size of the block + its header
+        sbrk(0 - sizeof(header_t) - header->s.size);
+        pthread_mutex_unlock(&global_malloc_lock);
+        return;
+    }
+
+    // If the target block is not the last block, simply mark it as free and return
+    header->s.is_free = 1;
+    pthread_mutex_unlock(&global_malloc_lock);
+}

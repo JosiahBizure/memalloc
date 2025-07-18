@@ -32,5 +32,10 @@ void* malloc(size_t size);
 */
 header_t* get_free_block(size_t size);
 
+/*
+    Deallocates previously allocated memory
+*/
+void free(void* block);
+
 
 #endif // MEMALLOC_H
