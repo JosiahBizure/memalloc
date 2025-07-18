@@ -135,3 +135,36 @@ void* calloc(size_t num, size_t nsize) {
     memset(block, 0, size);
     return block;
 }
+
+
+void* realloc(void* block, size_t size) {
+    header_t* header;
+    void* ret;
+    if (block == NULL) return malloc(size);
+    
+    if (size == 0) {
+        free(block);
+        return NULL;
+    }
+
+    header = (header_t*)block - 1;
+
+    /*
+        If the current block already has sufficient size to accomodate
+        the requested size, nothing to do
+    */
+    if (header->s.size >= size) return block;
+
+    /*
+        Otherwise, we call malloc to get a block of the requested size,
+        relocate contents to the new bigger block, and then free the
+        old smaller block
+    */
+    ret = malloc(size);
+    if (ret != NULL) {
+        memcpy(ret, block, header->s.size);
+        free(block);
+    }
+
+    return ret;
+}

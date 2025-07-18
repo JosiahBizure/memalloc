@@ -32,10 +32,15 @@ void* malloc(size_t size);
 */
 header_t* get_free_block(size_t size);
 
-/*
-    Deallocates previously allocated memory
-*/
-void free(void* block);
+
+void free(void* block); // Deallocates previously allocated memory
+
+// Allocates memory ofr an array of num elements of nsize bytes each
+// Additionally, zeroes out all memory
+void* calloc(size_t num, size_t nsize);
+
+// Changes the size of the givne memory block to the requested size
+void* realloc(void* block, size_t size);
 
 
 #endif // MEMALLOC_H
