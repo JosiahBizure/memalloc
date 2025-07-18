@@ -56,6 +56,7 @@ void* malloc(size_t size) {
     return (void*)(header + 1); // Again, pointer to the actual memory block
 }
 
+
 header_t* get_free_block(size_t size) {
     header_t* curr = head;
     while (curr) {
@@ -66,6 +67,7 @@ header_t* get_free_block(size_t size) {
     }
     return NULL;
 }
+
 
 void free(void* block) {
     header_t* header, *tmp;
@@ -116,4 +118,20 @@ void free(void* block) {
     // If the target block is not the last block, simply mark it as free and return
     header->s.is_free = 1;
     pthread_mutex_unlock(&global_malloc_lock);
+}
+
+
+void* calloc(size_t num, size_t nsize) {
+    size_t size;
+    void* block;
+    if (num == NULL || nsize == NULL) return NULL;
+    size = num * nsize;
+
+    // Check for multiplication overflow
+    if (nsize != size / num) return NULL;
+
+    block = malloc(size);
+    if (block == NULL) return NULL;
+    memset(block, 0, size);
+    return block;
 }
