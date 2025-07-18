@@ -10,7 +10,7 @@ union header {
     struct {
         size_t size;
         unsigned int is_free;
-        header_t* next;
+        union header* next;
     } s;
     ALIGN stub;
 };

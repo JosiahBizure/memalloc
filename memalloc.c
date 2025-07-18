@@ -1,3 +1,6 @@
+#include <unistd.h>
+#include <string.h>
+
 #include "memalloc.h"
 
 void* malloc(size_t size) {
@@ -6,7 +9,7 @@ void* malloc(size_t size) {
     header_t* header;
 
     // If the requested size is zero, return NULL
-    if (size == NULL) return NULL;
+    if (size == 0) return NULL;
 
     /*
         For valid sizes, first we aquire the lock
@@ -124,7 +127,7 @@ void free(void* block) {
 void* calloc(size_t num, size_t nsize) {
     size_t size;
     void* block;
-    if (num == NULL || nsize == NULL) return NULL;
+    if (num == 0 || nsize == 0) return NULL;
     size = num * nsize;
 
     // Check for multiplication overflow
@@ -141,7 +144,7 @@ void* realloc(void* block, size_t size) {
     header_t* header;
     void* ret;
     if (block == NULL) return malloc(size);
-    
+
     if (size == 0) {
         free(block);
         return NULL;
